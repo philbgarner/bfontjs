@@ -1,0 +1,25 @@
+{
+  "name": "bfontjs",
+  "version": "0.1.0",
+  "description": "HTML5 Bitmap Font Library",
+  "main": "font.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/philbgarner/bfontjs.git"
+  },
+  "keywords": [
+    "html5",
+    "bitmap",
+    "font",
+    "canvas"
+  ],
+  "author": "phil b garner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/philbgarner/bfontjs/issues"
+  },
+  "homepage": "https://github.com/philbgarner/bfontjs#readme"
+}
