@@ -7,6 +7,7 @@ A bitmap font library for rendering to canvas objects in HTML5.  Uses an image a
 - Monospace bitmap source fonts: COMPLETE
 - Variable space bitmap fonts: NOT STARTED
 - Render in specified colour: COMPLETE
+- Render with gradient: NOT STARTED
 - Drop shadow: NOT STARTED
 - Justification: NOT STARTED
 - Word wrap: NOT STARTED

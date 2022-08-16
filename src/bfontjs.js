@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { createCanvas, Image } from 'canvas'
 
 let fonts = {
     
@@ -81,11 +82,13 @@ function DrawText(ctx, font, x, y, text, colour) {
     if (!fonts[font]) {
         return
     }
-    if (!canvas) {
-        canvas = document.createElement('canvas')
-    }
+
     font = fonts[font]
     let fwidth = font.image.width
+
+    if (!canvas) {
+        canvas = createCanvas(fwidth, fWidth)
+    }
     let fontctx = canvas.getContext('2d')
     fontctx.clearRect(0, 0, fwidth, fwidth)
     

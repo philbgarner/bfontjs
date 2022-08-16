@@ -1,4 +1,4 @@
-import { Generate437 } from './font.js'
+import { Generate437 } from './src/font.js'
 
 const args = process.argv.slice(2)
 if (args[0]) {
