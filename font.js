@@ -1,13 +1,81 @@
-const utility = require('./utility')
+import fs from 'fs'
 
 let fonts = {
-    Tiny: {
-        filename: "tinyfont.png",
-        imagedata: null,
-    }
+    
 }
 
 let canvas = null
+
+function base64(file) {
+    return Buffer.from(fs.readFileSync(file)).toString('base64')
+}
+
+function hexToRgb(hex) {
+    if (hex.length === 7) {
+        hex += 'ff'
+    } else if (hex.length === 8) {
+        hex += '0'
+    }
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+      a: parseInt(result[4], 16)
+    } : null;
+  }
+
+function rgbToHex(rgb) {
+    let r = parseInt(rgb.r).toString(16)
+    let g = parseInt(rgb.g).toString(16)
+    let b = parseInt(rgb.b).toString(16)
+    let a = parseInt(rgb.a).toString(16)
+    
+    r = r.length === 1 ? '0' + r : r
+    g = g.length === 1 ? '0' + g : g
+    b = b.length === 1 ? '0' + b : b
+    a = a.length === 1 ? '0' + a : a
+    return `#${r}${g}${b}${a}`
+}
+
+function Generate437(fileOut) {
+    Codepage437toJSON('./fonts/Codepage-437.png').then((data) => {
+        fs.writeFileSync(fileOut, JSON.stringify(data))
+    })
+}
+
+function Codepage437toJSON(bitmapFilename) {
+    return new Promise((resolve, reject) => {
+        try {
+            let sx = 0      // Source X
+            let sy = 0      // Source Y
+            let cw = 9      // Character Width
+            let ch = 16     // Character Height
+
+            let codepage = {}
+            let imagedata = base64(bitmapFilename)
+        
+            for (let code = 0; code < 256; code++) {
+                codepage[String.fromCharCode(code)] = { x: sx, y: sy, w: cw, h: ch }
+
+                sx += cw
+                if (sx >= 288) {
+                    sx = 0
+                }
+                
+                sy += ch
+                if (sy >= 128) {
+                    sy = 0
+                }
+            }
+
+            resolve({codepage: codepage, imagedata: imagedata})
+        }
+        catch (e) {
+            reject(e)
+        }
+    })
+}
 
 function isNumber(char) {
     if (typeof char !== 'string') {
@@ -79,4 +147,4 @@ function LoadFont(font) {
     fonts[font].imagedata.src = './images/' + fonts[font].filename
 }
 
-module.exports = { DrawText, LoadFont }
+export { DrawText, LoadFont, Generate437 }

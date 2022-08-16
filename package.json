@@ -4,12 +4,14 @@
   "description": "HTML5 Bitmap Font Library",
   "main": "font.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node ./build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/philbgarner/bfontjs.git"
   },
+  "type": "module",
   "keywords": [
     "html5",
     "bitmap",
