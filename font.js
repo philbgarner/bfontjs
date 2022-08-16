@@ -10,7 +10,7 @@ function base64(file) {
     return Buffer.from(fs.readFileSync(file)).toString('base64')
 }
 
-function hexToRgb(hex) {
+function HexToRgba(hex) {
     if (hex.length === 7) {
         hex += 'ff'
     } else if (hex.length === 8) {
@@ -25,7 +25,7 @@ function hexToRgb(hex) {
     } : null;
   }
 
-function rgbToHex(rgb) {
+function RgbaToHex(rgb) {
     let r = parseInt(rgb.r).toString(16)
     let g = parseInt(rgb.g).toString(16)
     let b = parseInt(rgb.b).toString(16)
@@ -77,52 +77,29 @@ function Codepage437toJSON(bitmapFilename) {
     })
 }
 
-function isNumber(char) {
-    if (typeof char !== 'string') {
-      return false
-    }
-  
-    if (char.trim() === '') {
-      return false
-    }
-  
-    return !isNaN(char)
-}
-
 function DrawText(ctx, font, x, y, text, colour) {
     if (!fonts[font]) {
         return
     }
-
-    if (!fonts[font].imagedata) {
-        LoadFont(font)
-    }
-
     if (!canvas) {
         canvas = document.createElement('canvas')
     }
-    let fwidth = 128
+    font = fonts[font]
+    let fwidth = font.image.width
     let fontctx = canvas.getContext('2d')
     fontctx.clearRect(0, 0, fwidth, fwidth)
-    text = text.toUpperCase()
     
     let dx = 0
     for (let t in text) {
-        let codeoffset = isNumber(text[t]) ? 48 : 65
-        let code = text[t].charCodeAt(0) - codeoffset
-        let sourceoffset = isNumber(text[t]) ? code * 4 + 104 : code * 4
-        if (`!"#$%&'()*+,-./`.includes(text[t])) {
-            code = text[t].charCodeAt(0) - 33
-            sourceoffset = code * 4 + 36 * 4
-        }
-        fontctx.drawImage(fonts[font].imagedata, sourceoffset, 0, 4, 5, dx, 0, 4, 5)
-        dx += 4
+        var rect = font.codepage[text[t].charCodeAt(0)]
+        fontctx.drawImage(font.imagedata, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
+        dx += rect.w
     }
-    var imageData = fontctx.getImageData(0, 0, 4 * text.length, 5)
+    var imageData = fontctx.getImageData(0, 0, dx - rect.w, rect.h)
     var pixels = imageData.data
     var i
 
-    let colr = utility.hexToRgb(colour)
+    let colr = HexToRgba(colour)
 
     for (i = 0; i < pixels.length; i += 4) {
         if (pixels[i] > 0) {
@@ -138,13 +115,32 @@ function DrawText(ctx, font, x, y, text, colour) {
     ctx.drawImage(canvas, 0, 0, text.length * 4, 5, x, y, text.length * 4, 5)
 }
 
-function LoadFont(font) {
-    if (!fonts[font]) {
-        return
-    }
-
-    fonts[font].imagedata = new Image()
-    fonts[font].imagedata.src = './images/' + fonts[font].filename
+function LoadFromJSON(font) {
+    return new Promise((resolve, reject) => {
+        try {
+            if (typeof font === 'string') {
+                font = JSON.parse(font)
+            }
+            font.image = new Image()
+            font.image.src = 'data:image/png;base64,' + font.imagedata
+            resolve(font)
+        } catch (e) {
+            reject(e)
+        }
+    })
 }
 
-export { DrawText, LoadFont, Generate437 }
+function LoadFromFile(filename) {
+    return new Promise((resolve, reject) => {
+        try {
+            let data = fs.readFileSync(filename)
+            LoadFromJSON(data).then((font) => {
+                resolve(font)
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+export { DrawText, LoadFromFile, LoadFromJSON, Generate437 }
