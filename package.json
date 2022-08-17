@@ -1,18 +1,18 @@
 {
   "name": "bfontjs",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "HTML5 Bitmap Font Library",
-  "main": "./src/bfontjs.js",
+  "main": "./lib/bfontjs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build_font": "node ./buildFont",
-    "build": "babel src -d build"
+    "prepublish": "babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/philbgarner/bfontjs.git"
   },
-  "type": "module",
+  "type": "commonjs",
   "keywords": [
     "html5",
     "bitmap",
@@ -26,9 +26,10 @@
   },
   "homepage": "https://github.com/philbgarner/bfontjs#readme",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "canvas": "^2.9.3",
-    "babel-cli": "^6.26.0"
+    "babel-preset-es2015": "^6.24.1",
+    "canvas": "^2.9.3"
   },
   "dependencies": {}
 }

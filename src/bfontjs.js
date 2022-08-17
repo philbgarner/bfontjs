@@ -1,10 +1,6 @@
 import fs from 'fs'
 import { createCanvas, Image } from 'canvas'
 
-let fonts = {
-    
-}
-
 let canvas = null
 
 function base64(file) {
@@ -79,11 +75,7 @@ function Codepage437toJSON(bitmapFilename) {
 }
 
 function DrawText(ctx, font, x, y, text, colour) {
-    if (!fonts[font]) {
-        return
-    }
 
-    font = fonts[font]
     let fwidth = font.image.width
 
     if (!canvas) {
@@ -95,7 +87,7 @@ function DrawText(ctx, font, x, y, text, colour) {
     let dx = 0
     for (let t in text) {
         var rect = font.codepage[text[t].charCodeAt(0)]
-        fontctx.drawImage(font.imagedata, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
+        fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
         dx += rect.w
     }
     var imageData = fontctx.getImageData(0, 0, dx - rect.w, rect.h)
