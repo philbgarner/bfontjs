@@ -79,7 +79,7 @@ function DrawText(ctx, font, x, y, text, colour) {
     let fwidth = font.image.width
 
     if (!canvas) {
-        canvas = createCanvas(fwidth, fWidth)
+        canvas = createCanvas(fwidth, fwidth)
     }
     let fontctx = canvas.getContext('2d')
     fontctx.clearRect(0, 0, fwidth, fwidth)
