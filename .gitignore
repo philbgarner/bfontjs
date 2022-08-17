@@ -1,4 +1,6 @@
 /build/
 /lib/
-.gitignore
 /node_modules/
+
+.gitignore
+testImage.png

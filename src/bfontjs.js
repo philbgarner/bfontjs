@@ -36,7 +36,7 @@ function RgbaToHex(rgb) {
 }
 
 function Generate437(fileOut) {
-    Codepage437toJSON('./fonts/Codepage-437.png').then((data) => {
+    Codepage437toJSON(__dirname + '/fonts/Codepage-437.png').then((data) => {
         fs.writeFileSync(fileOut, JSON.stringify(data))
     })
 }
@@ -58,9 +58,9 @@ function Codepage437toJSON(bitmapFilename) {
                 sx += cw
                 if (sx >= 288) {
                     sx = 0
+                    sy += ch
                 }
                 
-                sy += ch
                 if (sy >= 128) {
                     sy = 0
                 }
@@ -86,9 +86,14 @@ function DrawText(ctx, font, x, y, text, colour) {
     
     let dx = 0
     for (let t in text) {
-        var rect = font.codepage[text[t].charCodeAt(0)]
-        fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
-        dx += rect.w
+        var rect = font.codepage[text[t]]
+        if (rect) {
+            fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
+            dx += rect.w
+        } else {
+            console.log('Error finding value in codepage for', text[t], `(${text[t].charCodeAt(0)})`)
+            return
+        }
     }
     var imageData = fontctx.getImageData(0, 0, dx - rect.w, rect.h)
     var pixels = imageData.data
@@ -107,7 +112,7 @@ function DrawText(ctx, font, x, y, text, colour) {
     
     fontctx.clearRect(0, 0, fwidth, fwidth)
     fontctx.putImageData(imageData, 0, 0)
-    ctx.drawImage(canvas, 0, 0, text.length * 4, 5, x, y, text.length * 4, 5)
+    ctx.drawImage(canvas, 0, 0, text.length * rect.w, rect.h, x, y, text.length * rect.w, rect.h)
 }
 
 function LoadFromJSON(font) {
@@ -129,8 +134,10 @@ function LoadFromFile(filename) {
     return new Promise((resolve, reject) => {
         try {
             let data = fs.readFileSync(filename)
-            LoadFromJSON(data).then((font) => {
+            LoadFromJSON(data.toString()).then((font) => {
                 resolve(font)
+            }).catch((e) => {
+                reject(e)
             })
         } catch (e) {
             reject(e)
