@@ -1,8 +1,8 @@
 {
   "name": "bfontjs",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "HTML5 Bitmap Font Library",
-  "main": "bfontjs.js",
+  "main": "./src/bfontjs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build_font": "node ./buildFont",
