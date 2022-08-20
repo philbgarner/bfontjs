@@ -1,4 +1,8 @@
-let canvas = null
+import { createCanvas, Image } from 'canvas'
+import fs from 'fs'
+import { URL } from 'url'
+
+let canvasEl = null
 
 function base64(file) {
     return Buffer.from(fs.readFileSync(file)).toString('base64')
@@ -33,6 +37,7 @@ function RgbaToHex(rgb) {
 }
 
 function Generate437(fileOut) {
+    const __dirname = new URL('.', import.meta.url).pathname.slice(1)
     Codepage437toJSON(__dirname + '/fonts/Codepage-437.png').then((data) => {
         fs.writeFileSync(fileOut, JSON.stringify(data))
     })
@@ -63,7 +68,7 @@ function Codepage437toJSON(bitmapFilename) {
                 }
             }
 
-            resolve({codepage: codepage, imagedata: imagedata})
+            resolve({cwidth: cw, cheight: ch, codepage: codepage, imagedata: imagedata})
         }
         catch (e) {
             reject(e)
@@ -72,14 +77,22 @@ function Codepage437toJSON(bitmapFilename) {
 }
 
 function DrawText(ctx, font, x, y, text, colour) {
-
-    let fwidth = font.image.width
-
-    if (!canvas) {
-        canvas = document.createElement('canvas')
+    if (!font || !font.codepage || !font.imagedata || !font.image || !font.cwidth || !font.cheight) {
+        throw new Error('Invalid font or font not loaded.')
     }
-    let fontctx = canvas.getContext('2d')
-    fontctx.clearRect(0, 0, fwidth, fwidth)
+
+    let textwidth = font.cwidth * text.length
+    let textheight = font.cheight
+
+    if (!canvasEl) {
+        try {
+            canvasEl = document.createElement('canvas')
+        } catch {
+            canvasEl = createCanvas(textwidth, textheight)
+        }
+    }
+    let fontctx = canvasEl.getContext('2d')
+    fontctx.clearRect(0, 0, textwidth, textheight)
     
     let dx = 0
     for (let t in text) {
@@ -92,7 +105,7 @@ function DrawText(ctx, font, x, y, text, colour) {
             return
         }
     }
-    var imageData = fontctx.getImageData(0, 0, dx - rect.w, rect.h)
+    var imageData = fontctx.getImageData(0, 0, dx, rect.h)
     var pixels = imageData.data
     var i
 
@@ -107,9 +120,9 @@ function DrawText(ctx, font, x, y, text, colour) {
         }
     }
     
-    fontctx.clearRect(0, 0, fwidth, fwidth)
+    fontctx.clearRect(0, 0, textwidth, textheight)
     fontctx.putImageData(imageData, 0, 0)
-    ctx.drawImage(canvas, 0, 0, text.length * rect.w, rect.h, x, y, text.length * rect.w, rect.h)
+    ctx.drawImage(canvasEl, 0, 0, text.length * rect.w, rect.h, x, y, text.length * rect.w, rect.h)
 }
 
 function LoadFromJSON(font) {
@@ -127,4 +140,17 @@ function LoadFromJSON(font) {
     })
 }
 
-export { DrawText, LoadFromJSON, Generate437 }
+function LoadFromFile(filename) {
+    return new Promise((resolve, reject) => {
+        try {
+            let data = fs.readFileSync(filename).toString()
+            LoadFromJSON(data).then((font) => {
+                resolve(font)
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+export { DrawText, LoadFromJSON, LoadFromFile, Generate437 }

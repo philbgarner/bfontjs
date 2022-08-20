@@ -1,12 +1,12 @@
 {
   "name": "bfontjs",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "HTML5 Bitmap Font Library",
-  "main": "./lib/bfontjs.js",
+  "main": "./dist/bfontjs.js",
   "type": "module",
   "scripts": {
     "test": "node test.js",
-    "buildfont": "node ./buildFont.js",
+    "compilefont": "node ./compilefont.js",
     "build": "webpack"
   },
   "repository": {
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/philbgarner/bfontjs#readme",
   "devDependencies": {
+    "canvas": "^2.9.3",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }

@@ -12,4 +12,5 @@ export default {
         type: 'umd'
     }
   },
+  externals: ['canvas', 'fs', 'url']
 }
