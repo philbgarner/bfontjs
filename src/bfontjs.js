@@ -1,6 +1,3 @@
-import fs from 'fs'
-import { createCanvas, Image } from 'canvas'
-
 let canvas = null
 
 function base64(file) {
@@ -79,7 +76,7 @@ function DrawText(ctx, font, x, y, text, colour) {
     let fwidth = font.image.width
 
     if (!canvas) {
-        canvas = createCanvas(fwidth, fwidth)
+        canvas = document.createElement('canvas')
     }
     let fontctx = canvas.getContext('2d')
     fontctx.clearRect(0, 0, fwidth, fwidth)
@@ -130,19 +127,4 @@ function LoadFromJSON(font) {
     })
 }
 
-function LoadFromFile(filename) {
-    return new Promise((resolve, reject) => {
-        try {
-            let data = fs.readFileSync(filename)
-            LoadFromJSON(data.toString()).then((font) => {
-                resolve(font)
-            }).catch((e) => {
-                reject(e)
-            })
-        } catch (e) {
-            reject(e)
-        }
-    })
-}
-
-export { DrawText, LoadFromFile, LoadFromJSON, Generate437 }
+export { DrawText, LoadFromJSON, Generate437 }
