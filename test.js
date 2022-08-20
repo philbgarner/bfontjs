@@ -1,6 +1,6 @@
 import fs from 'fs'
-import { createCanvas, loadImage } from 'canvas'
-import { LoadFromFile, DrawText } from './src/bfontjs.js'
+import { createCanvas } from 'canvas'
+import { DrawText, Fonts } from './src/bfontjs.js'
 
 const width = 256;
 const height = 256;
@@ -11,15 +11,25 @@ const context = canvas.getContext('2d');
 context.fillStyle = '#00c';
 context.fillRect(0, 0, width, height);
 
-LoadFromFile('./src/fonts/default.json').then((font) => {
-    const args = process.argv.slice(2)
-    let testText = 'ABCDEFGHIJKLabcdefghijkl'
-    if (args[0]) {
-        testText = args[0]
-    }
-    
-    DrawText(context, font, 10, 10, testText, '#ffffffff')
+const args = process.argv.slice(2)
+let testText = 'ABCDEFGHIJKLabcdefghijkl'
+if (args[0]) {
+    testText = args[0]
+}
 
-    const buffer = canvas.toBuffer('image/png')
-    fs.writeFileSync('./testImage.png', buffer)
-})
+let fonts = Fonts()
+if (args[1]) {
+    var font = fonts[args[1]]
+    if (!font) {
+        let keylist = Object.keys(Fonts())
+        if (keylist.length > 0) {
+            var suggestion = `\nOr specify a prebuilt font from this list: ${keylist.reduce((prev, curr) => prev + ',' + curr)}`
+        }
+        throw new Error(`Error: Specified font "` + args[1] + `" does not exist in the list of preloaded fonts.  Did you mean to load your font using LoadFromJSON()?.${suggestion}`)
+    }
+}
+
+DrawText(context, 10, 10, testText, '#ffffffff', font)
+
+const buffer = canvas.toBuffer('image/png')
+fs.writeFileSync('./testImage.png', buffer)

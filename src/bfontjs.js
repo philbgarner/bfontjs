@@ -1,6 +1,23 @@
-import { createCanvas, Image } from 'canvas'
+import { createCanvas, Image as canvasImage } from 'canvas'
 import fs from 'fs'
-import { URL } from 'url'
+import fontCodepage437 from './fonts/default.json' assert {type: 'json'}
+
+let fonts = {}
+
+function LoadDefaultFonts() {
+    fonts.default = LoadFromJSON(fontCodepage437)
+}
+
+function Fonts(name) {
+    if (Object.keys(fonts).length === 0) {
+        LoadDefaultFonts()
+    }
+    if (!name) {
+        return fonts
+    } else {
+        return fonts[name]
+    }
+}
 
 let canvasEl = null
 
@@ -37,8 +54,9 @@ function RgbaToHex(rgb) {
 }
 
 function Generate437(fileOut) {
-    const __dirname = new URL('.', import.meta.url).pathname.slice(1)
-    Codepage437toJSON(__dirname + '/fonts/Codepage-437.png').then((data) => {
+    //console.log(new URL('.', import.meta.url))
+    ///const __dirname = new URL('.', import.meta.url).pathname.slice(1)
+    Codepage437toJSON('./fonts/Codepage-437.png').then((data) => {
         fs.writeFileSync(fileOut, JSON.stringify(data))
     })
 }
@@ -76,7 +94,26 @@ function Codepage437toJSON(bitmapFilename) {
     })
 }
 
-function DrawText(ctx, font, x, y, text, colour) {
+/**
+ * Draws the specified text on the canvas.
+ * 
+ * @param {object} ctx 2d context from canvas element.
+ * @param {number} x Left location for text.
+ * @param {number} y Top location for text
+ * @param {string} text Text to be drawn on canvas.
+ * @param {string} colour Colour to use (white if undefined).
+ * @param {object} font Font to use (default DOS codepage 437 font if undefined).
+ */
+function DrawText(ctx, x, y, text, colour, font) {
+    if (!font && Object.keys(fonts).length > 0) {
+        font = fonts.default
+    } else if (!font) {
+        throw new Error('Font parameter empty and default fonts are not loaded.')
+    }
+    if (!colour) {
+        colour = '#ffffffff'
+    }
+
     if (!font || !font.codepage || !font.imagedata || !font.image || !font.cwidth || !font.cheight) {
         throw new Error('Invalid font or font not loaded.')
     }
@@ -126,31 +163,30 @@ function DrawText(ctx, font, x, y, text, colour) {
 }
 
 function LoadFromJSON(font) {
-    return new Promise((resolve, reject) => {
-        try {
-            if (typeof font === 'string') {
-                font = JSON.parse(font)
-            }
-            font.image = new Image()
-            font.image.src = 'data:image/png;base64,' + font.imagedata
-            resolve(font)
-        } catch (e) {
-            reject(e)
+    try {
+        if (typeof font === 'string') {
+            font = JSON.parse(font)
         }
-    })
+        
+        try {
+            font.image = new canvasImage()
+        } catch {
+            font.image = new Image()
+        }
+        font.image.src = 'data:image/png;base64,' + font.imagedata
+        return font
+    } catch (e) {
+        throw new Error(e)
+    }
 }
 
 function LoadFromFile(filename) {
-    return new Promise((resolve, reject) => {
-        try {
-            let data = fs.readFileSync(filename).toString()
-            LoadFromJSON(data).then((font) => {
-                resolve(font)
-            })
-        } catch (e) {
-            reject(e)
-        }
-    })
+    try {
+        let data = fs.readFileSync(filename).toString()
+        return LoadFromJSON(data)
+    } catch (e) {
+        reject(e)
+    }
 }
 
-export { DrawText, LoadFromJSON, LoadFromFile, Generate437 }
+export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts }
