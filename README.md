@@ -13,10 +13,11 @@ A bitmap font library for rendering to canvas objects in HTML5.  Uses an image a
 - Render in specified colour: COMPLETE
 - CLI to compile codepage + bitmap as a font: NOT STARTED
 - Render Effects
+    - Solid Background: COMPLETED
     - Underline: NOT STARTED
     - Outline: NOT STARTED
-    - Drop shadow: NOT STARTED
-    - Render with gradient: NOT STARTED
+    - Drop shadow: COMPLETED
+    - Render with gradient: STARTED
     - Interlaced Effect: NOT STARTED
 - Variable space bitmap fonts: NOT STARTED
 - Scaling: NOT STARTED

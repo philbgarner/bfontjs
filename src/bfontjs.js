@@ -163,11 +163,18 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
                 SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
             }
             if (Object.keys(effects).length > 0) {
+                if (effects.gradient) {
+                    // TODO: Interpolate the r, g, b, a variable above one step towards
+                    // the destination colour specified in this gradient object.
+                    // That way, the first line of the font is drawn with the colour given in DrawText()
+                    // and each successive line gets closer to the destination.
+                }
                 if (effects.background) {
                     if (pixel.a === 0) {
                         SetPixelAtRgba(pixels, effects.background.colour, px, py, textwidth, textheight)
                     }
-                } else if (effects.dropshadow) {
+                }
+                if (effects.dropshadow) {
                     let ox = effects.dropshadow.offsetx ? effects.dropshadow.offsetx : 1
                     let oy = effects.dropshadow.offsety ? effects.dropshadow.offsety : 1
                     DrawText(ctx, x + ox, y + oy, text, effects.dropshadow.colour, font)
