@@ -2,8 +2,8 @@ import fs from 'fs'
 import { createCanvas } from 'canvas'
 import { DrawText, Fonts } from './src/bfontjs.js'
 
-const width = 256;
-const height = 256;
+const width = 712;
+const height = 148;
 
 const canvas = createCanvas(width, height);
 const context = canvas.getContext('2d');
@@ -29,17 +29,49 @@ if (args[1]) {
     }
 }
 
-DrawText(context, 10, 10, testText, '#ffffffff', font)
+DrawText(context, 10, 8, testText, '#ffffffff', font)
 
-DrawText(context, 10, 28, `Background Effect ${testText}`, '#ffffffff', font, {
+DrawText(context, 10, 28, `Background ${testText}`, '#ffffffff', font, {
     background: {
         colour: '#0000009a'
     }
 })
 
-DrawText(context, 10, 46, `Drop Shadow ${testText}`, '#ffffffff', font, {
+DrawText(context, 10, 48, `Drop Shadow ${testText}`, '#ffffffff', font, {
     dropshadow: {
         colour: '#00000001', offsetx: 2, offsety: 2
+    }
+})
+
+DrawText(context, 10, 68, `Gradient ${testText}`, '#ff0000ff', font, {
+    gradient: {
+        colour: '#ffff00ff'
+    }
+})
+
+DrawText(context, 10, 88, `Gradient (Horizontal) ${testText}`, '#ff0000ff', font, {
+    gradient: {
+        colour: '#ffff00ff',
+        horizontal: true
+    }
+})
+
+DrawText(context, 10, 108, `Gradient + Dropshadow ${testText}`, '#ff0000ff', font, {
+    gradient: {
+        colour: '#ffff00ff'
+    },
+    dropshadow: {
+        colour: '#00000001', offsetx: 2, offsety: 2
+    }
+})
+
+DrawText(context, 10, 128, `Background + Gradient (Horizontal) ${testText}`, '#ff0000ff', font, {
+    gradient: {
+        colour: '#ffff00ff',
+        horizontal: true
+    },
+    background: {
+        colour: '#0000009a'
     }
 })
 

@@ -7,6 +7,14 @@ A bitmap font library for rendering to canvas objects in HTML5.  Uses an image a
 - Browser Compatible: COMPLETE
 - CommonJS Compatible: IN PROGRESS
 
+# Current Version (0.2.0)
+
+Currently implemented features:
+![Features Sample](sample.png)
+
+See the `test.js` file for an example 
+
+
 # Planned Features
 
 - Monospace bitmap source fonts: COMPLETE
@@ -17,8 +25,7 @@ A bitmap font library for rendering to canvas objects in HTML5.  Uses an image a
     - Underline: NOT STARTED
     - Outline: NOT STARTED
     - Drop shadow: COMPLETED
-    - Render with gradient: STARTED
-    - Interlaced Effect: NOT STARTED
+    - Render with gradient: COMPLETED
 - Variable space bitmap fonts: NOT STARTED
 - Scaling: NOT STARTED
 - Justification: NOT STARTED
@@ -26,9 +33,23 @@ A bitmap font library for rendering to canvas objects in HTML5.  Uses an image a
 
 # Getting Started
 
+## Browser Bundle
+
 Copy the contents of `/dist/bfontjs.js` to your project and include it in your HTML file with `<script src='./bfontjs.js'></script>`.  When you execute your scripts, the `bfontjs` module will be available in the global scope.
 
 At appropriate points in your script you can load a precompiled font with `bfontjs.LoadFromJSON(json)` (where `json` is the precompiled font's JSON file contents) and later render it to the screen with `bfontjs.DrawText(ctx, font, x, y, message, hexColor))` (where `ctx` is a 2d context object you generated from a canvas element with `canvas.getContext('2d')` and `font` is the precompiled font you loaded.).
+
+## Node (CommonJS)
+
+Type `npm i bfontjs --save-dev` while in your projects folder's in the console.  Then include it in your project with `require`.
+
+## Node (ES6)
+
+Type `npm i bfontjs --save-dev` while in your projects folder's in the console.  Then include it in your project with `import`.
+
+## Canvas Dependency
+
+The ES6 and CommonJS versions rely on the canvas npm library to render to canvas without the DOM.
 
 # Compiled Fonts
 

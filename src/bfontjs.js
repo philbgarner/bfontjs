@@ -25,6 +25,15 @@ function base64(file) {
     return Buffer.from(fs.readFileSync(file)).toString('base64')
 }
 
+function ColourLerpRgb(colour1, colour2, t) {
+    return {
+        r: parseInt(colour1.r + (colour2.r - colour1.r) * t),
+        g: parseInt(colour1.g + (colour2.g - colour1.g) * t),
+        b: parseInt(colour1.b + (colour2.b - colour1.b) * t),
+        a: colour1.a
+    }
+}
+
 function HexToRgba(hex) {
     if (hex.length === 7) {
         hex += 'ff'
@@ -147,15 +156,8 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     }
     var imageData = fontctx.getImageData(0, 0, dx, rect.h)
     var pixels = imageData.data
-    var i
-
+    
     let colr = HexToRgba(colour)
-
-    let r = colr.r
-    let g = colr.g
-    let b = colr.b
-    let a = colr.a
-
     for (let py = 0; py < textheight; py++) {
         for (let px = 0; px < textwidth; px++) {
             let pixel = GetPixelAtRgba(pixels, px, py, textwidth, textheight)
@@ -163,11 +165,12 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
                 SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
             }
             if (Object.keys(effects).length > 0) {
-                if (effects.gradient) {
-                    // TODO: Interpolate the r, g, b, a variable above one step towards
-                    // the destination colour specified in this gradient object.
-                    // That way, the first line of the font is drawn with the colour given in DrawText()
-                    // and each successive line gets closer to the destination.
+                if (effects.gradient && pixel && pixel.a > 0) {
+                    let vertical = effects.gradient.horizontal ? false : true
+                    let t = vertical ? py / textheight : px / textwidth
+                    let gradientColour = HexToRgba(effects.gradient.colour ? effects.gradient.colour : '#ffffffff')
+                    let lerpColr = ColourLerpRgb(colr, gradientColour, t)
+                    SetPixelAtRgba(pixels, RgbaToHex(lerpColr), px, py, textwidth, textheight)
                 }
                 if (effects.background) {
                     if (pixel.a === 0) {
