@@ -1,6 +1,6 @@
 {
   "name": "bfontjs",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "HTML5 Bitmap Font Library",
   "main": "./dist/bfontjs.js",
   "type": "module",
