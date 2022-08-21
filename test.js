@@ -31,5 +31,17 @@ if (args[1]) {
 
 DrawText(context, 10, 10, testText, '#ffffffff', font)
 
+DrawText(context, 10, 28, `Background Effect ${testText}`, '#ffffffff', font, {
+    background: {
+        colour: '#0000009a'
+    }
+})
+
+DrawText(context, 10, 46, `Drop Shadow ${testText}`, '#ffffffff', font, {
+    dropshadow: {
+        colour: '#00000001', offsetx: 2, offsety: 2
+    }
+})
+
 const buffer = canvas.toBuffer('image/png')
 fs.writeFileSync('./testImage.png', buffer)

@@ -54,8 +54,6 @@ function RgbaToHex(rgb) {
 }
 
 function Generate437(fileOut) {
-    //console.log(new URL('.', import.meta.url))
-    ///const __dirname = new URL('.', import.meta.url).pathname.slice(1)
     Codepage437toJSON('./fonts/Codepage-437.png').then((data) => {
         fs.writeFileSync(fileOut, JSON.stringify(data))
     })
@@ -103,8 +101,11 @@ function Codepage437toJSON(bitmapFilename) {
  * @param {string} text Text to be drawn on canvas.
  * @param {string} colour Colour to use (white if undefined).
  * @param {object} font Font to use (default DOS codepage 437 font if undefined).
+ * @param {object} effects Any effects and parameters to apply when rendering this text.
  */
-function DrawText(ctx, x, y, text, colour, font) {
+function DrawText(ctx, x, y, text, colour, font, effects) {
+    effects = effects ? effects : {}
+
     if (!font && Object.keys(fonts).length > 0) {
         font = fonts.default
     } else if (!font) {
@@ -128,6 +129,8 @@ function DrawText(ctx, x, y, text, colour, font) {
             canvasEl = createCanvas(textwidth, textheight)
         }
     }
+    canvasEl.width = textwidth
+    canvasEl.height = textheight
     let fontctx = canvasEl.getContext('2d')
     fontctx.clearRect(0, 0, textwidth, textheight)
     
@@ -148,18 +151,56 @@ function DrawText(ctx, x, y, text, colour, font) {
 
     let colr = HexToRgba(colour)
 
-    for (i = 0; i < pixels.length; i += 4) {
-        if (pixels[i] > 0) {
-            pixels[i] = colr.r
-            pixels[i + 1] = colr.g
-            pixels[i + 2] = colr.b
-            pixels[i + 3] = colr.a
+    let r = colr.r
+    let g = colr.g
+    let b = colr.b
+    let a = colr.a
+
+    for (let py = 0; py < textheight; py++) {
+        for (let px = 0; px < textwidth; px++) {
+            let pixel = GetPixelAtRgba(pixels, px, py, textwidth, textheight)
+            if (pixel && pixel.a > 0) {
+                SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
+            }
+            if (Object.keys(effects).length > 0) {
+                if (effects.background) {
+                    if (pixel.a === 0) {
+                        SetPixelAtRgba(pixels, effects.background.colour, px, py, textwidth, textheight)
+                    }
+                } else if (effects.dropshadow) {
+                    let ox = effects.dropshadow.offsetx ? effects.dropshadow.offsetx : 1
+                    let oy = effects.dropshadow.offsety ? effects.dropshadow.offsety : 1
+                    DrawText(ctx, x + ox, y + oy, text, effects.dropshadow.colour, font)
+                }
+            }
         }
     }
-    
+
     fontctx.clearRect(0, 0, textwidth, textheight)
     fontctx.putImageData(imageData, 0, 0)
-    ctx.drawImage(canvasEl, 0, 0, text.length * rect.w, rect.h, x, y, text.length * rect.w, rect.h)
+    ctx.drawImage(canvasEl, 0, 0, text.length * rect.w, rect.h, x, y, textwidth, textheight)
+}
+
+function SetPixelAtRgba(pixels, colour, x, y, pixelswidth, pixelsheight) {
+    colour = HexToRgba(colour ? colour : '#00000000')
+    let offset = (x + pixelswidth * y) * 4
+    if (offset < 0 || offset >= pixels.length) {
+        return false
+    }
+    pixels[offset] = colour.r
+    pixels[offset + 1] = colour.g
+    pixels[offset + 2] = colour.b
+    pixels[offset + 3] = colour.a
+    
+    return true
+}
+
+function GetPixelAtRgba(pixels, x, y, pixelswidth, pixelsheight) {
+    let offset = (x + pixelswidth * y) * 4
+    if (offset < 0 || offset >= pixels.length) {
+        return false
+    }
+    return { r: pixels[offset], g: pixels[offset + 1], b: pixels[offset + 2], a: pixels[offset + 3] }
 }
 
 function LoadFromJSON(font) {
