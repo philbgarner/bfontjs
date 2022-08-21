@@ -12,8 +12,7 @@ A bitmap font library for rendering to canvas objects in HTML5.  Uses an image a
 Currently implemented features:
 ![Features Sample](sample.png)
 
-See the `test.js` file for an example 
-
+See the `test.js` file for a examples.
 
 # Planned Features
 
@@ -24,7 +23,7 @@ See the `test.js` file for an example
     - Solid Background: COMPLETED
     - Underline: NOT STARTED
     - Outline: NOT STARTED
-    - Drop shadow: COMPLETED
+    - Drop shadow: NOT STARTED
     - Render with gradient: COMPLETED
 - Variable space bitmap fonts: NOT STARTED
 - Scaling: NOT STARTED

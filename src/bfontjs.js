@@ -156,31 +156,32 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     }
     var imageData = fontctx.getImageData(0, 0, dx, rect.h)
     var pixels = imageData.data
-    
+
     let colr = HexToRgba(colour)
     for (let py = 0; py < textheight; py++) {
         for (let px = 0; px < textwidth; px++) {
             let pixel = GetPixelAtRgba(pixels, px, py, textwidth, textheight)
-            if (pixel && pixel.a > 0) {
-                SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
-            }
             if (Object.keys(effects).length > 0) {
+                let setDefaultPixel = true
                 if (effects.gradient && pixel && pixel.a > 0) {
                     let vertical = effects.gradient.horizontal ? false : true
                     let t = vertical ? py / textheight : px / textwidth
                     let gradientColour = HexToRgba(effects.gradient.colour ? effects.gradient.colour : '#ffffffff')
                     let lerpColr = ColourLerpRgb(colr, gradientColour, t)
                     SetPixelAtRgba(pixels, RgbaToHex(lerpColr), px, py, textwidth, textheight)
+                    setDefaultPixel = false
                 }
                 if (effects.background) {
                     if (pixel.a === 0) {
                         SetPixelAtRgba(pixels, effects.background.colour, px, py, textwidth, textheight)
                     }
                 }
-                if (effects.dropshadow) {
-                    let ox = effects.dropshadow.offsetx ? effects.dropshadow.offsetx : 1
-                    let oy = effects.dropshadow.offsety ? effects.dropshadow.offsety : 1
-                    DrawText(ctx, x + ox, y + oy, text, effects.dropshadow.colour, font)
+                if (pixel && pixel.a > 0 && setDefaultPixel) {
+                    SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
+                }
+            } else {
+                if (pixel && pixel.a > 0) {
+                    SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
                 }
             }
         }
