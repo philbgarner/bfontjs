@@ -25,7 +25,7 @@ See the `test.js` file for a examples.
     - Outline: NOT STARTED
     - Drop shadow: NOT STARTED
     - Render with gradient: COMPLETED
-- Variable space bitmap fonts: NOT STARTED
+- Variable space bitmap fonts: COMPLETED
 - Scaling: NOT STARTED
 - Justification: NOT STARTED
 - Word wrap: NOT STARTED

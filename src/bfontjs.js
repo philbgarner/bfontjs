@@ -68,7 +68,15 @@ function Generate437(fileOut) {
     })
 }
 
-function Codepage437toJSON(bitmapFilename) {
+function GenerateBlankCodepage(fileIn, max_y) {
+    Codepage437toJSON('./src/fonts/' + fileIn, max_y).then((data) => {
+        let file = fileIn.split('.')
+        fs.writeFileSync(file[0] + '.json', JSON.stringify(data))
+    })
+}
+
+function Codepage437toJSON(bitmapFilename, max_y) {
+    max_y = max_y ? max_y : 0
     return new Promise((resolve, reject) => {
         try {
             let sx = 0      // Source X
@@ -85,7 +93,9 @@ function Codepage437toJSON(bitmapFilename) {
                 sx += cw
                 if (sx >= 288) {
                     sx = 0
-                    sy += ch
+                    if (max_y && sy + ch < max_y) {
+                        sy += ch
+                    }
                 }
                 
                 if (sy >= 128) {
@@ -146,6 +156,7 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     let dx = 0
     for (let t in text) {
         var rect = font.codepage[text[t]]
+        console.log(text[t], rect)
         if (rect) {
             fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
             dx += rect.w
@@ -154,7 +165,8 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
             return
         }
     }
-    var imageData = fontctx.getImageData(0, 0, dx, rect.h)
+    textwidth = dx
+    var imageData = fontctx.getImageData(0, 0, textwidth, rect.h)
     var pixels = imageData.data
 
     let colr = HexToRgba(colour)
@@ -189,7 +201,7 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
 
     fontctx.clearRect(0, 0, textwidth, textheight)
     fontctx.putImageData(imageData, 0, 0)
-    ctx.drawImage(canvasEl, 0, 0, text.length * rect.w, rect.h, x, y, textwidth, textheight)
+    ctx.drawImage(canvasEl, 0, 0, textwidth, rect.h, x, y, textwidth, textheight)
 }
 
 function SetPixelAtRgba(pixels, colour, x, y, pixelswidth, pixelsheight) {
@@ -241,4 +253,4 @@ function LoadFromFile(filename) {
     }
 }
 
-export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts }
+export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts, GenerateBlankCodepage }
