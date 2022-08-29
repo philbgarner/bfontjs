@@ -1,6 +1,7 @@
 import { createCanvas, Image as canvasImage } from 'canvas'
 import fs from 'fs'
 import fontCodepage437 from './fonts/default.json' assert {type: 'json'}
+import codelist from './codepage.js'
 
 let fonts = {}
 
@@ -76,7 +77,7 @@ function GenerateBlankCodepage(fileIn, max_y) {
 }
 
 function Codepage437toJSON(bitmapFilename, max_y) {
-    max_y = max_y ? max_y : 0
+    max_y = max_y ? max_y : 128
     return new Promise((resolve, reject) => {
         try {
             let sx = 0      // Source X
@@ -84,12 +85,15 @@ function Codepage437toJSON(bitmapFilename, max_y) {
             let cw = 9      // Character Width
             let ch = 16     // Character Height
 
-            let codepage = {}
+            let codepage = []
             let imagedata = base64(bitmapFilename)
         
             for (let code = 0; code < 256; code++) {
-                codepage[String.fromCharCode(code)] = { x: sx, y: sy, w: cw, h: ch }
-
+                let codeitem = codelist.filter(f => f.codenumber === code)
+                if (codeitem.length > 0) {
+                    codeitem[0].rect = { x: sx, y: sy, w: cw, h: ch }
+                    codepage.push(codeitem[0])
+                }
                 sx += cw
                 if (sx >= 288) {
                     sx = 0
@@ -98,11 +102,10 @@ function Codepage437toJSON(bitmapFilename, max_y) {
                     }
                 }
                 
-                if (sy >= 128) {
+                if (sy >= 127) {
                     sy = 0
                 }
             }
-
             resolve({cwidth: cw, cheight: ch, codepage: codepage, imagedata: imagedata})
         }
         catch (e) {
@@ -155,8 +158,8 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     
     let dx = 0
     for (let t in text) {
-        var rect = font.codepage[text[t]]
-        console.log(text[t], rect)
+        let glyph = font.codepage.filter(f => f.symbol === text[t])
+        var rect = glyph.length > 0 ? glyph[0].rect : null
         if (rect) {
             fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
             dx += rect.w
@@ -183,11 +186,6 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
                     SetPixelAtRgba(pixels, RgbaToHex(lerpColr), px, py, textwidth, textheight)
                     setDefaultPixel = false
                 }
-                if (effects.background) {
-                    if (pixel.a === 0) {
-                        SetPixelAtRgba(pixels, effects.background.colour, px, py, textwidth, textheight)
-                    }
-                }
                 if (pixel && pixel.a > 0 && setDefaultPixel) {
                     SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
                 }
@@ -200,6 +198,13 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     }
 
     fontctx.clearRect(0, 0, textwidth, textheight)
+    if (effects.background) {
+        // if (pixel.a === 0) {
+        //     SetPixelAtRgba(pixels, effects.background.colour, px, py, textwidth, textheight)
+        // }
+        ctx.fillStyle = effects.background.colour
+        ctx.fillRect(x, y, textwidth, textheight)
+    }
     fontctx.putImageData(imageData, 0, 0)
     ctx.drawImage(canvasEl, 0, 0, textwidth, rect.h, x, y, textwidth, textheight)
 }
