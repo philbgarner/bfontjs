@@ -457,7 +457,7 @@ export default [
   },
   {
     "codenumber": 91,
-    "symbol": "{",
+    "symbol": "[",
     "description": "LEFT SQUARE BRACKET"
   },
   {

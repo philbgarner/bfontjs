@@ -199,14 +199,12 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
 
     fontctx.clearRect(0, 0, textwidth, textheight)
     if (effects.background) {
-        // if (pixel.a === 0) {
-        //     SetPixelAtRgba(pixels, effects.background.colour, px, py, textwidth, textheight)
-        // }
         ctx.fillStyle = effects.background.colour
         ctx.fillRect(x, y, textwidth, textheight)
     }
     fontctx.putImageData(imageData, 0, 0)
     ctx.drawImage(canvasEl, 0, 0, textwidth, rect.h, x, y, textwidth, textheight)
+    return { x: x, y: y, w: textwidth, h: textheight }
 }
 
 function SetPixelAtRgba(pixels, colour, x, y, pixelswidth, pixelsheight) {
