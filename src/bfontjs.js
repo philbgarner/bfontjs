@@ -126,6 +126,11 @@ function Codepage437toJSON(bitmapFilename, max_y) {
  * @param {object} effects Any effects and parameters to apply when rendering this text.
  */
 function DrawText(ctx, x, y, text, colour, font, effects) {
+    
+    if (text.length === 0) {
+        return { x: x, y: y, w: 0, h: 0 }
+    }
+
     effects = effects ? effects : {}
 
     if (!font && Object.keys(fonts).length > 0) {
