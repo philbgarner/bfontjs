@@ -23,7 +23,8 @@ function Fonts(name) {
 let canvasEl = null
 
 function base64(file) {
-    return Buffer.from(fs.readFileSync(file)).toString('base64')
+    let contents = fs.readFileSync(file)
+    return Buffer.from(contents).toString('base64')
 }
 
 function ColourLerpRgb(colour1, colour2, t) {
@@ -76,24 +77,55 @@ function GenerateBlankCodepage(fileIn, max_y) {
     })
 }
 
-function CodepageAndBitmaptoJSON(bitmapFilename, max_y) {
-    max_y = max_y ? max_y : 128
+function ImageToBase64(img, outputFormat) {
+    let canvas
+    outputFormat = outputFormat ? outputFormat : 'image/png'
+    try {
+        canvas = document.createElement('canvas')
+    } catch {
+        canvas = createCanvas(img.width, img.height)
+    }
+    let contx = canvas.getContext('2d');
+    canvas.height = img.height
+    canvas.width = img.width
+    contx.drawImage(img, 0, 0)
+    let data = canvas.toDataURL(outputFormat)
+    let index = data.indexOf(';base64,') + ';base64,'.length
+    return data.slice(index)
+  }
+
+/**
+ * Loads bitmap from path (string param type) or uses Image to get the base64 image data and build a precompiled font JSON object.
+ * @param {string|Image} bitmap 
+ * @param {int} max_y 
+ * @param {int} cw Character width. 
+ * @param {int} ch Character height.
+ * @returns 
+ */
+function CodepageAndBitmaptoJSON(bitmap, max_y, cw, ch) {
     return new Promise((resolve, reject) => {
         try {
             let sx = 0      // Source X
             let sy = 0      // Source Y
-            let cw = 9      // Character Width
-            let ch = 16     // Character Height
+            cw = cw ? cw : 9      // Character Width
+            ch = ch ? ch : 16     // Character Height
 
             let codepage = []
-            let imagedata = base64(bitmapFilename)
+            let imagedata
             let image = new Image()
-            image.src = 'data:image/png;base64,' + imagedata
+            if (typeof bitmap === 'string') {
+                imagedata = base64(bitmap)
+                image.src = 'data:image/png;base64,' + imagedata
+            } else {
+                image = bitmap
+                imagedata = ImageToBase64(image)
+            }
+            max_y = max_y ? max_y : image.height
         
             for (let code = 0; code < 256; code++) {
                 let codeitem = codelist.filter(f => f.codenumber === code)
                 if (codeitem.length > 0) {
-                    codeitem[0].rect = { x: sx, y: sy, w: cw, h: ch }
+                    codeitem[0].rect = undefined // { x: sx, y: sy, w: cw, h: ch } //TODO: Make this a parameter to control whether we auto-generate rects
                     codepage.push(codeitem[0])
                 }
                 sx += cw
@@ -279,4 +311,4 @@ function LoadFromFile(filename) {
     }
 }
 
-export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts, GenerateBlankCodepage, CodepageAndBitmaptoJSON }
+export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts, GenerateBlankCodepage, CodepageAndBitmaptoJSON, ImageToBase64 }

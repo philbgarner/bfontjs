@@ -27,6 +27,7 @@
   "homepage": "https://github.com/philbgarner/bfontjs#readme",
   "devDependencies": {
     "canvas": "^2.9.3",
+    "fs": "^0.0.1-security",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }
