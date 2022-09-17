@@ -279,4 +279,4 @@ function LoadFromFile(filename) {
     }
 }
 
-export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts, GenerateBlankCodepage }
+export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts, GenerateBlankCodepage, CodepageAndBitmaptoJSON }
