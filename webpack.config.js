@@ -12,5 +12,6 @@ export default {
         type: 'umd'
     }
   },
+  devtool: 'source-map',
   externals: ['canvas', 'fs', 'url']
 }

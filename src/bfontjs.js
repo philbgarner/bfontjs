@@ -64,19 +64,19 @@ function RgbaToHex(rgb) {
 }
 
 function Generate437(fileOut) {
-    Codepage437toJSON('./fonts/Codepage-437.png').then((data) => {
+    CodepageAndBitmaptoJSON('./fonts/Codepage-437.png').then((data) => {
         fs.writeFileSync(fileOut, JSON.stringify(data))
     })
 }
 
 function GenerateBlankCodepage(fileIn, max_y) {
-    Codepage437toJSON('./src/fonts/' + fileIn, max_y).then((data) => {
+    CodepageAndBitmaptoJSON('./src/fonts/' + fileIn, max_y).then((data) => {
         let file = fileIn.split('.')
         fs.writeFileSync(file[0] + '.json', JSON.stringify(data))
     })
 }
 
-function Codepage437toJSON(bitmapFilename, max_y) {
+function CodepageAndBitmaptoJSON(bitmapFilename, max_y) {
     max_y = max_y ? max_y : 128
     return new Promise((resolve, reject) => {
         try {
@@ -87,6 +87,8 @@ function Codepage437toJSON(bitmapFilename, max_y) {
 
             let codepage = []
             let imagedata = base64(bitmapFilename)
+            let image = new Image()
+            image.src = 'data:image/png;base64,' + imagedata
         
             for (let code = 0; code < 256; code++) {
                 let codeitem = codelist.filter(f => f.codenumber === code)
@@ -95,14 +97,14 @@ function Codepage437toJSON(bitmapFilename, max_y) {
                     codepage.push(codeitem[0])
                 }
                 sx += cw
-                if (sx >= 288) {
+                if (sx >= image.width) {
                     sx = 0
                     if (max_y && sy + ch < max_y) {
                         sy += ch
                     }
                 }
                 
-                if (sy >= 127) {
+                if (sy >= image.height) {
                     sy = 0
                 }
             }
@@ -149,6 +151,10 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     let textwidth = font.cwidth * text.length
     let textheight = font.cheight
 
+    if (typeof text === 'number') {
+        textwidth = font.cwidth
+    }
+
     if (!canvasEl) {
         try {
             canvasEl = document.createElement('canvas')
@@ -162,15 +168,27 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     fontctx.clearRect(0, 0, textwidth, textheight)
     
     let dx = 0
-    for (let t in text) {
-        let glyph = font.codepage.filter(f => f.symbol === text[t])
+    if (typeof text === 'number') {
+        let glyph = font.codepage.filter(f => f.codenumber === text)
         var rect = glyph.length > 0 ? glyph[0].rect : null
         if (rect) {
             fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
             dx += rect.w
         } else {
-            console.log('Error finding value in codepage for', text[t], `(${text[t].charCodeAt(0)})`)
+            console.log('Error finding value in codepage for', text)
             return
+        }
+    } else {
+        for (let t in text) {
+            let glyph = font.codepage.filter(f => f.symbol === text[t])
+            var rect = glyph.length > 0 ? glyph[0].rect : null
+            if (rect) {
+                fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
+                dx += rect.w
+            } else {
+                console.log('Error finding value in codepage for', text[t], `(${text[t].charCodeAt(0)})`)
+                return
+            }
         }
     }
     textwidth = dx
