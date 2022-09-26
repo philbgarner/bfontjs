@@ -219,46 +219,47 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
                 dx += rect.w
             } else {
                 console.log('Error finding value in codepage for', text[t], `(${text[t].charCodeAt(0)})`)
-                return
             }
         }
     }
     textwidth = dx
-    var imageData = fontctx.getImageData(0, 0, textwidth, rect.h)
-    var pixels = imageData.data
+    if (textwidth > 0) {
+        var imageData = fontctx.getImageData(0, 0, textwidth, rect ? rect.h : textheight)
+        var pixels = imageData.data
 
-    let colr = HexToRgba(colour)
-    for (let py = 0; py < textheight; py++) {
-        for (let px = 0; px < textwidth; px++) {
-            let pixel = GetPixelAtRgba(pixels, px, py, textwidth, textheight)
-            if (Object.keys(effects).length > 0) {
-                let setDefaultPixel = true
-                if (effects.gradient && pixel && pixel.a > 0) {
-                    let vertical = effects.gradient.horizontal ? false : true
-                    let t = vertical ? py / textheight : px / textwidth
-                    let gradientColour = HexToRgba(effects.gradient.colour ? effects.gradient.colour : '#ffffffff')
-                    let lerpColr = ColourLerpRgb(colr, gradientColour, t)
-                    SetPixelAtRgba(pixels, RgbaToHex(lerpColr), px, py, textwidth, textheight)
-                    setDefaultPixel = false
-                }
-                if (pixel && pixel.a > 0 && setDefaultPixel) {
-                    SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
-                }
-            } else {
-                if (pixel && pixel.a > 0) {
-                    SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
+        let colr = HexToRgba(colour)
+        for (let py = 0; py < textheight; py++) {
+            for (let px = 0; px < textwidth; px++) {
+                let pixel = GetPixelAtRgba(pixels, px, py, textwidth, textheight)
+                if (Object.keys(effects).length > 0) {
+                    let setDefaultPixel = true
+                    if (effects.gradient && pixel && pixel.a > 0) {
+                        let vertical = effects.gradient.horizontal ? false : true
+                        let t = vertical ? py / textheight : px / textwidth
+                        let gradientColour = HexToRgba(effects.gradient.colour ? effects.gradient.colour : '#ffffffff')
+                        let lerpColr = ColourLerpRgb(colr, gradientColour, t)
+                        SetPixelAtRgba(pixels, RgbaToHex(lerpColr), px, py, textwidth, textheight)
+                        setDefaultPixel = false
+                    }
+                    if (pixel && pixel.a > 0 && setDefaultPixel) {
+                        SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
+                    }
+                } else {
+                    if (pixel && pixel.a > 0) {
+                        SetPixelAtRgba(pixels, colour, px, py, textwidth, textheight)
+                    }
                 }
             }
         }
-    }
 
-    fontctx.clearRect(0, 0, textwidth, textheight)
-    if (effects.background) {
-        ctx.fillStyle = effects.background.colour
-        ctx.fillRect(x, y, textwidth, textheight)
+        fontctx.clearRect(0, 0, textwidth, textheight)
+        if (effects.background) {
+            ctx.fillStyle = effects.background.colour
+            ctx.fillRect(x, y, textwidth, textheight)
+        }
+        fontctx.putImageData(imageData, 0, 0)
+        ctx.drawImage(canvasEl, 0, 0, textwidth, rect ? rect.h : textheight, x, y, textwidth, textheight)
     }
-    fontctx.putImageData(imageData, 0, 0)
-    ctx.drawImage(canvasEl, 0, 0, textwidth, rect.h, x, y, textwidth, textheight)
     return { x: x, y: y, w: textwidth, h: textheight }
 }
 
