@@ -31,34 +31,34 @@ if (args[1]) {
 
 DrawText(context, 10, 8, testText, '#ffffffff', font)
 
-DrawText(context, 10, 28, `Background ${testText}`, '#ffffffff', font, {
-    background: {
-        colour: '#0000009a'
-    }
-})
+// DrawText(context, 10, 28, `Background ${testText}`, '#ffffffff', font, {
+//     background: {
+//         colour: '#0000009a'
+//     }
+// })
 
-DrawText(context, 10, 48, `Gradient ${testText}`, '#ff0000ff', font, {
-    gradient: {
-        colour: '#ffff00ff'
-    }
-})
+// DrawText(context, 10, 48, `Gradient ${testText}`, '#ff0000ff', font, {
+//     gradient: {
+//         colour: '#ffff00ff'
+//     }
+// })
 
-DrawText(context, 10, 68, `Gradient (Horizontal) ${testText}`, '#ff0000ff', font, {
-    gradient: {
-        colour: '#ffff00ff',
-        horizontal: true
-    }
-})
+// DrawText(context, 10, 68, `Gradient (Horizontal) ${testText}`, '#ff0000ff', font, {
+//     gradient: {
+//         colour: '#ffff00ff',
+//         horizontal: true
+//     }
+// })
 
-DrawText(context, 10, 88, `Background + Gradient (Horizontal) ${testText}`, '#ff0000ff', font, {
-    gradient: {
-        colour: '#ffff00ff',
-        horizontal: true
-    },
-    background: {
-        colour: '#0000009a'
-    }
-})
+// DrawText(context, 10, 88, `Background + Gradient (Horizontal) ${testText}`, '#ff0000ff', font, {
+//     gradient: {
+//         colour: '#ffff00ff',
+//         horizontal: true
+//     },
+//     background: {
+//         colour: '#0000009a'
+//     }
+// })
 
 const buffer = canvas.toBuffer('image/png')
 fs.writeFileSync('./testImage.png', buffer)

@@ -148,6 +148,16 @@ function CodepageAndBitmaptoJSON(bitmap, max_y, cw, ch) {
     })
 }
 
+function CalculateTextHeight(text, font) {
+    try {
+        if (text.length === 0) {
+            return 0
+        }
+        text = text.split('\\n')
+        return text.length * font.cheight
+    } catch { return 0 }
+}
+
 /**
  * Draws the specified text on the canvas.
  * 
@@ -181,7 +191,7 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     }
 
     let textwidth = font.cwidth * text.length
-    let textheight = font.cheight
+    let textheight = CalculateTextHeight(text, font)
 
     if (typeof text === 'number') {
         textwidth = font.cwidth
@@ -200,6 +210,7 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     fontctx.clearRect(0, 0, textwidth, textheight)
     
     let dx = 0
+    let maxdx = 0
     if (typeof text === 'number') {
         let glyph = font.codepage.filter(f => f.codenumber === text)
         var rect = glyph.length > 0 ? glyph[0].rect : null
@@ -211,20 +222,30 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
             return
         }
     } else {
-        for (let t in text) {
-            let glyph = font.codepage.filter(f => f.symbol === text[t])
-            var rect = glyph.length > 0 ? glyph[0].rect : null
-            if (rect) {
-                fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, 0, rect.w, rect.h)
-                dx += rect.w
-            } else {
-                console.log('Error finding value in codepage for', text[t], `(${text[t].charCodeAt(0)})`)
+        let rows = text.split('\\n')
+        let dy = 0
+        for (let r in rows) {
+            let txt = rows[r]
+            for (let t in txt) {
+                let glyph = font.codepage.filter(f => f.symbol === txt[t])
+                var rect = glyph.length > 0 ? glyph[0].rect : null
+                if (rect) {
+                    fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, dy, rect.w, rect.h)
+                    dx += rect.w
+                } else {
+                    console.log('Error finding value in codepage for', txt[t], `(${txt[t].charCodeAt(0)})`)
+                }
             }
+            dy += font.cheight
+            if (dx > maxdx) {
+                maxdx = dx
+            }
+            dx = 0
         }
     }
-    textwidth = dx
+    textwidth = maxdx
     if (textwidth > 0) {
-        var imageData = fontctx.getImageData(0, 0, textwidth, rect ? rect.h : textheight)
+        var imageData = fontctx.getImageData(0, 0, textwidth, textheight)
         var pixels = imageData.data
 
         let colr = HexToRgba(colour)
@@ -258,7 +279,7 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
             ctx.fillRect(x, y, textwidth, textheight)
         }
         fontctx.putImageData(imageData, 0, 0)
-        ctx.drawImage(canvasEl, 0, 0, textwidth, rect ? rect.h : textheight, x, y, textwidth, textheight)
+        ctx.drawImage(canvasEl, 0, 0, textwidth, textheight, x, y, textwidth, textheight)
     }
     return { x: x, y: y, w: textwidth, h: textheight }
 }
