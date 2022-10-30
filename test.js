@@ -12,7 +12,7 @@ context.fillStyle = '#00c';
 context.fillRect(0, 0, width, height);
 
 const args = process.argv.slice(2)
-let testText = 'ABCDEFGHIJKLabcdefghijkl'
+let testText = 'ABCDEFGHIJKL\nabcdefghijkl'
 if (args[0]) {
     testText = args[0]
 }

@@ -153,7 +153,7 @@ function CalculateTextHeight(text, font) {
         if (text.length === 0) {
             return 0
         }
-        text = text.split('\\n')
+        text = text.split('\n')
         return text.length * font.cheight
     } catch { return 0 }
 }
@@ -222,12 +222,15 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
             return
         }
     } else {
-        let rows = text.split('\\n')
+        let rows = text.split('\n')
         let dy = 0
         for (let r in rows) {
             let txt = rows[r]
             for (let t in txt) {
                 let glyph = font.codepage.filter(f => f.symbol === txt[t])
+                if (glyph.length === 0) {
+                    glyph = font.codepage.filter(f => f.codenumber === txt[t].charCodeAt(0))
+                }
                 var rect = glyph.length > 0 ? glyph[0].rect : null
                 if (rect) {
                     fontctx.drawImage(font.image, rect.x, rect.y, rect.w, rect.h, dx, dy, rect.w, rect.h)
