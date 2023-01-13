@@ -158,6 +158,33 @@ function CalculateTextHeight(text, font) {
     } catch { return 0 }
 }
 
+function CalculateTextWidth(text, font) {
+    try {
+        if (text.length === 0) {
+            return 0
+        }
+        let maxw = 0
+        text = text.split('\n')
+        for (let t in text) {
+            let txt = text[t]
+            let linewidth = 0
+            for (let char = 0; char < txt.length; char++) {
+                let glyph = font.codepage.filter(f => f.codenumber === txt.charCodeAt(char))
+                var rect = glyph.length > 0 ? glyph[0].rect : null
+                if (rect) {
+                    linewidth += rect.w
+                } else {
+                    linewidth += font.cwidth
+                }
+            }
+            if (linewidth > maxw) {
+                maxw = linewidth
+            }
+        }
+        return maxw
+    } catch { return 0 }
+}
+
 /**
  * Draws the specified text on the canvas.
  * 
@@ -190,7 +217,7 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
         throw new Error('Invalid font or font not loaded.')
     }
 
-    let textwidth = font.cwidth * text.length
+    let textwidth = CalculateTextWidth(text, font)//font.cwidth * text.length
     let textheight = CalculateTextHeight(text, font)
 
     if (typeof text === 'number') {
@@ -248,7 +275,12 @@ function DrawText(ctx, x, y, text, colour, font, effects) {
     }
     textwidth = maxdx
     if (textwidth > 0) {
-        var imageData = fontctx.getImageData(0, 0, textwidth, textheight)
+        try {
+            var imageData = fontctx.getImageData(0, 0, textwidth, textheight)
+        } catch {
+            console.log('Error getting image data:', textwidth, textheight)
+            return
+        }
         var pixels = imageData.data
 
         let colr = HexToRgba(colour)

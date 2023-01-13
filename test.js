@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { createCanvas } from 'canvas'
-import { DrawText, Fonts } from './src/bfontjs.js'
+import json from './src/fonts/eighties.json' assert { type: 'json' }
+import { DrawText, Fonts, LoadFromJSON } from './src/bfontjs.js'
 
 const width = 712;
 const height = 128;
@@ -12,7 +13,7 @@ context.fillStyle = '#00c';
 context.fillRect(0, 0, width, height);
 
 const args = process.argv.slice(2)
-let testText = 'ABCDEFGHIJKL\nabcdefghijkl'
+let testText = 'Maps'
 if (args[0]) {
     testText = args[0]
 }
@@ -28,6 +29,10 @@ if (args[1]) {
         throw new Error(`Error: Specified font "` + args[1] + `" does not exist in the list of preloaded fonts.  Did you mean to load your font using LoadFromJSON()?.${suggestion}`)
     }
 }
+
+
+
+font = LoadFromJSON(json)
 
 DrawText(context, 10, 8, testText, '#ffffffff', font)
 
