@@ -368,4 +368,4 @@ function LoadFromFile(filename) {
     }
 }
 
-export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts, GenerateBlankCodepage, CodepageAndBitmaptoJSON, ImageToBase64 }
+export { DrawText, LoadFromJSON, LoadFromFile, Generate437, LoadDefaultFonts, Fonts, GenerateBlankCodepage, CodepageAndBitmaptoJSON, ImageToBase64, CalculateTextWidth, CalculateTextHeight }
